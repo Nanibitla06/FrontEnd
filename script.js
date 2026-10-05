@@ -1,37 +1,36 @@
-const API_URL = "https://pythonfastapi-ih39.onrender.com";
+const API_URL = "";
 
 async function loadStudents() {
-    try {
-        const response = await fetch(`${API_URL}/api/students`);
+  try {
+    const response = await fetch(`${API_URL}/api/students`);
 
-        const students = await response.json();
+    const students = await response.json();
 
-        const tableBody = document.getElementById("studentTableBody");
+    const tableBody = document.getElementById("studentTableBody");
 
-        tableBody.innerHTML = "";
+    tableBody.innerHTML = "";
 
-        students.forEach(student => {
-            const row = document.createElement("tr");
+    students.forEach((student) => {
+      const row = document.createElement("tr");
 
-            row.innerHTML = `
+      row.innerHTML = `
                 <td>${student.id}</td>
                 <td>${student.name}</td>
                 <td>${student.email}</td>
                 <td>${student.course}</td>
             `;
 
-            tableBody.appendChild(row);
-        });
-
-    } catch (error) {
-        console.error("Error:", error);
-        alert("Unable to connect to FastAPI server.");
-    }
+      tableBody.appendChild(row);
+    });
+  } catch (error) {
+    console.error("Error:", error);
+    alert("Unable to connect to FastAPI server.");
+  }
 }
 
-
-document.getElementById("studentForm").addEventListener("submit", async function(event) {
-
+document
+  .getElementById("studentForm")
+  .addEventListener("submit", async function (event) {
     event.preventDefault();
 
     const name = document.getElementById("name").value;
@@ -39,37 +38,33 @@ document.getElementById("studentForm").addEventListener("submit", async function
     const course = document.getElementById("course").value;
 
     const student = {
-        name: name,
-        email: email,
-        course: course
+      name: name,
+      email: email,
+      course: course,
     };
 
     try {
+      const response = await fetch(`${API_URL}/api/students`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(student),
+      });
 
-        const response = await fetch(`${API_URL}/api/students`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(student)
-        });
+      const result = await response.json();
 
-        const result = await response.json();
+      document.getElementById("message").textContent = result.message;
 
-        document.getElementById("message").textContent = result.message;
+      document.getElementById("studentForm").reset();
 
-        document.getElementById("studentForm").reset();
-
-        loadStudents();
-
+      loadStudents();
     } catch (error) {
+      console.error("Error:", error);
 
-        console.error("Error:", error);
-
-        document.getElementById("message").textContent =
-            "Unable to connect to FastAPI server.";
+      document.getElementById("message").textContent =
+        "Unable to connect to FastAPI server.";
     }
-});
-
+  });
 
 loadStudents();
